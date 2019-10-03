@@ -1170,9 +1170,9 @@
             }
 
             label {
-                margin-right: 10px;
+                margin-right: 10px;                display: block;                margin-top: 20px;
             }
-
+            #custom-recap-form input {                display: inline-block;                width: 400px;                clear: none;                float: left;            }
             .custom-continue {
                 text-align: right;
                 margin: 40px;
@@ -1199,9 +1199,8 @@
                 background-color: #e92d46;
                 color: white;
                 padding: 7px;
-                top: 3px;
-                position: relative;
-            }
+                position: relative;                                width: 68px;                font-size: 22px;                background-color: #e92d46;                color: white;                padding: 14px;                position: relative;                display: inline-block;                float: right;                height: 50px;
+            }                        .page-main.fix-indent-2 {                padding-top: 0px;            }
         </style>
         <div style="background-color: #e92d46; width: 100%; padding: 8px 20px 1px;">
             <p style="text-align: center; margin-bottom: 10px;">
