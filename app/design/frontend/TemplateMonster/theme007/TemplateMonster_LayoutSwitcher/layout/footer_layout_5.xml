@@ -8,7 +8,7 @@
 
         <referenceContainer name="footer" htmlClass="page-footer layout_5"/>
         <referenceContainer name="footer.grid-row">
-            <container name="footer.id.1" htmlClass="col-sm-4" htmlTag="div">
+            <container name="footer.id.1" htmlClass="col-sm-3" htmlTag="div">
                 <block class="Magento\Theme\Block\Html\Header\Logo" name="logo2" />
                 <block class="Magento\Cms\Block\Block" name="footer_block_4" before="-">
                     <arguments>
@@ -16,7 +16,14 @@
                     </arguments>
                 </block>
             </container>
-            <container name="footer.id.2" htmlClass="col-sm-8 align-right" htmlTag="div">
+            <container name="footer.id.contact" htmlClass="col-sm-3" htmlTag="div">
+                <block class="Magento\Cms\Block\Block" name="footer_contacts" >
+                    <arguments>
+                        <argument name="block_id" xsi:type="string">footer_contacts</argument>
+                    </arguments>
+                </block>
+            </container>
+            <container name="footer.id.2" htmlClass="col-sm-6 align-right" htmlTag="div">
 
             </container>
        </referenceContainer>
