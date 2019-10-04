@@ -9,7 +9,6 @@
     <body>
         <move element="page.main.title" destination="main.columns.grid-main" before="-"/>
         <move element="category.view.container" destination="main.columns.grid-main" after="page.main.title"/>
-        <!--<move element="category.view.container" destination="main.columns.grid-main" after="page.main.title"/>-->
     </body>
 </page>
 
