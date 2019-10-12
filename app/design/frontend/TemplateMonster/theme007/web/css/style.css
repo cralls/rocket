@@ -5948,3 +5948,63 @@ ul.social-links {
 display: none;
 }
 }
+
+.cds-container {
+  background-color: #20252b;
+}
+
+.cds-title {
+  text-align: center;
+}
+.cds-title h3 {
+  padding-top: 60px;
+  padding-bottom: 30px;
+}
+.cds-title h3 a {
+  color: #df2b4e;
+  text-decoration: none;
+  font-family: "Ubuntu", sans-serif;
+  font-size: 2.1rem;
+  font-weight: 400;
+  font-style: normal;
+}
+.banners{
+  margin-top: 30px;
+}
+.banners > div .s-desc {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0 0 7% 7%;
+}
+.banners > div .s-desc h1 {
+  font-family: 'Montserrat', sans-serif;
+  color: #ffffff;
+  font-size: 38px;
+  line-height: 1.2;
+  text-transform: none;
+  margin: 0;
+  font-weight: 400;
+}
+.banners > div .s-desc h2 {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 300;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+.banners > div .s-desc > a {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ffffff;
+  padding: 8px 20px;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #df2b4e 0%, #c82343 100%);
+}
+.banner {
+  position: relative;
+  padding: 0px;
+}
