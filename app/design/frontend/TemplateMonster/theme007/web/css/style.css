@@ -6014,3 +6014,7 @@ display: none;
 .grid-top {
   margin-bottom: 20px;
 }
+.row.grid-top {
+  display: block;
+  height: 150px;
+}
