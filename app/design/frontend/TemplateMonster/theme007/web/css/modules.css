@@ -4018,7 +4018,8 @@ pre {
     display: block;
     margin-bottom: 6px; }
     .footer .footer-col-content li a {
-      display: inline-block; }
+      display: inline-block;
+      font-size: 12px !important }
   .footer .switcher-store {
     position: fixed;
     left: 0;

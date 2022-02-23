@@ -6,12 +6,19 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-require_once ('app/Mage.php');
-Mage::app ()->setCurrentStore ( Mage_Core_Model_App::ADMIN_STORE_ID );
-Mage::app ( "default" );
+use Magento\Framework\App\Bootstrap;
 
+require __DIR__ . '/app/bootstrap.php';
+$bootstrap = \Magento\Framework\App\Bootstrap::create(BP, $_SERVER);
+
+$objectManager = $bootstrap->getObjectManager();
+$state = $objectManager->get('Magento\Framework\App\State');
+$state->setAreaCode('frontend');
+
+ini_set('session.save_path', '/home/rocketsc/public_html/var/session');
+//session_save_path('/home/rocketsc/public_html/var/session/');
 session_start();
-if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycling" || $_GET['sp'] == "swimming")) {
+if(isset($_GET['s']) && $_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycling" || $_GET['sp'] == "swimming")) {
 	$_SESSION['custom']['sport'] = $_GET['sp'];
 	if($_GET['sp'] == 'triathlon') {
 		header("location: /custom-select-level");
@@ -20,7 +27,7 @@ if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycli
 	} elseif($_GET['sp'] == 'swimming') {
 		header("location: /custom-select-level-swimming");
 	}
-} elseif($_GET['s'] == 'level' || ($_GET['s'] == 'sport' && ($_GET['sp'] != "triathlon" && $_GET['sp'] != "cycling" && $_GET['sp'] != "swimming"))) {
+} elseif(isset($_GET['s']) && $_GET['s'] == 'level' || (isset($_GET['s']) && $_GET['s'] == 'sport' && ($_GET['sp'] != "triathlon" && $_GET['sp'] != "cycling" && $_GET['sp'] != "swimming"))) {
 	$_SESSION['custom']['level'] = $_GET['l'];
 	if(isset($_GET['sp']) && !empty($_GET['sp'])) $_SESSION['custom']['sport'] = $_GET['sp'];
 	$sport = $_SESSION['custom']['sport'];
@@ -74,14 +81,14 @@ if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycli
         } elseif($sport == 'underwater-hockey') {
                 header("location: /custom-underwater-hockey-products");
         }
-} elseif($_GET['s'] == 'product') {
+} elseif(isset($_GET['s']) && $_GET['s'] == 'product') {
 	$_SESSION['custom']['products'] = $_POST['products'];
-	if($_GET['products'] != '') $_SESSION['custom']['products'] = $_GET['products'];
+	if(isset($_GET['products']) && $_GET['products'] != '') $_SESSION['custom']['products'] = $_GET['products'];
 	header("location: /custom-taste");
-} elseif($_GET['s'] == 'taste') {
+} elseif(isset($_GET['s']) && $_GET['s'] == 'taste') {
 	$_SESSION['custom']['taste'] = $_GET['t'];
 	header("location: /custom-select-your-colors");
-} elseif($_GET['s'] == 'colors') {
+} elseif(isset($_GET['s']) && $_GET['s'] == 'colors') {
 	$_SESSION['custom']['customColor'] = 0;
 	if($_POST['pantones'] == 'Main Pantone Color Code' && $_POST['additionalPantones'] == 'Additional Pantone Color Codes' || ($_POST['additionalPantones'] == '' || $_POST['pantones'] == '')) {
 		$_SESSION['custom']['mainColor'] = $_POST['color'];
@@ -92,7 +99,7 @@ if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycli
         $_SESSION['custom']['additionalColors'] = $_POST['additionalPantones'];
 	}
 	header("location: /custom-file-upload");
-} elseif($_GET['s'] == 'file-upload') {
+} elseif(isset($_GET['s']) && $_GET['s'] == 'file-upload') {
 	$now = strtotime('now');
 	if($_FILES['file']['tmp_name'] != '') move_uploaded_file($_FILES['file']['tmp_name'], 'uploads/'.$now.$_FILES['file']['name']);
 	if($_FILES['file2']['tmp_name'] != '') move_uploaded_file($_FILES['file2']['tmp_name'], 'uploads/'.$now.$_FILES['file2']['name']);
@@ -105,11 +112,11 @@ if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycli
 	if($_FILES['file4']['tmp_name'] != '') $_SESSION['custom']['filename4'] = $now.$_FILES['file4']['name'];
 	if($_FILES['file5']['tmp_name'] != '') $_SESSION['custom']['filename5'] = $now.$_FILES['file5']['name'];
 	header("location: /custom-team-size");
-} elseif($_GET['s'] == 'team-size') {
+} elseif(isset($_GET['s']) && $_GET['s'] == 'team-size') {
 	$_SESSION['custom']['team-size'] = $_POST['team-size'][0];
 	$_SESSION['custom']['delivery'] = $_POST['delivery'];
 	header("location: /custom-design-instructions");
-} elseif($_GET['s'] == 'design-instructions') {
+} elseif(isset($_GET['s']) && $_GET['s'] == 'design-instructions') {
 	$_SESSION['custom']['design-project'] = $_POST['design-project'];
 	$_SESSION['custom']['full-name'] = $_POST['full-name'];
 	$_SESSION['custom']['email'] = $_POST['email'];
@@ -119,14 +126,16 @@ if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycli
 	$_SESSION['custom']['zip'] = $_POST['zip'];
 	$_SESSION['custom']['country'] = $_POST['country'];
 	$_SESSION['custom']['design-instructions'] = $_POST['design-instructions'];
-	header("location: /custom-recap.php");
-} elseif($_GET['s'] == 'msg_id') {
-	$resource = Mage::getSingleton('core/resource');
-	$writeConnection = $resource->getConnection('core_write');
+	header("location: /custom-recap?t=".date('ymdhis'));
+} elseif(isset($_GET['s']) && $_GET['s'] == 'msg_id') {
+    $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+    $connection = $resource->getConnection();
+    $tableName = $resource->getTableName('custom_msg'); //gives table name with prefix
+    
+    //Select Data from table
+	$query = "SELECT * from $tableName where msg_id = '".$_GET['msg_id']."'";
 	
-	$readConnection = $resource->getConnection('core_read');
-	$query = "SELECT * from `custom_msg` where msg_id = '".$_GET['msg_id']."'";
-	$msgId = $readConnection->fetchAll($query);
+	$msgId = $connection->fetchAll($query); // gives associated array, table fields as key in array.
 	
 	$msg = $msgId[0]['msg'];
 	
@@ -138,10 +147,10 @@ if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycli
 		//Server settings
 		$mail->SMTPDebug = 0;                                 // Enable verbose debug output
 		$mail->isSMTP();                                      // Set mailer to use SMTP
-		$mail->Host = 'mail.rocketsciencesports.com';  // Specify main and backup SMTP servers
+		$mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
 		$mail->SMTPAuth = true;                               // Enable SMTP authentication
 		$mail->Username = 'sales@rocketsciencesports.com';                 // SMTP username
-		$mail->Password = 'T$67CsNWu;GP';                           // SMTP password
+		$mail->Password = 'R0ck3tSc13nc3!';                           // SMTP password
 		$mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
 		$mail->Port = 465;                                    // TCP port to connect to
 		
@@ -167,7 +176,7 @@ if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycli
 	$_SESSION['custom']['msg_id'] = $_GET['msg_id'];
 	setcookie("msg_id", $_GET['msg_id']);
 	header("Location: https://www.rocketsciencesports.com/custom/triathlon/custom-design-deposit.html");
-} elseif($_GET['s'] == 'recap') {
+} elseif(isset($_GET['s']) && $_GET['s'] == 'recap') {
 	// Generate & Send HTML E-mail
 	$subject = "New Custom Submission for ".$_SESSION['custom']['full-name'];
 	$headers = "MIME-Version: 1.0" . "\r\n";
@@ -176,67 +185,92 @@ if($_GET['s'] == 'sport' && ($_GET['sp'] == "triathlon" || $_GET['sp'] == "cycli
 	$headers .= 'From: custom@rocketsciencesports.com\r\n';
 	//$to = "custom@rocketsciencesports.com, design@rocketsciencesports.com";
 	$to = "marcin@rocketsciencesports.com";
-	//if($_SERVER['REMOTE_ADDR'] == '174.126.8.102') $to = 'cralls@vectorns.com';
+	if($_SERVER['REMOTE_ADDR'] == '174.126.8.102') $to = 'cralls@vectorns.com';
 	$additionalImages = explode(",", $_SESSION['custom']['additionalColors']);
 	$images = '';
         foreach($additionalImages as $image) {
         	$images .= "<img src='".$image."' style='display: inline-block;'> ";
         }
-	$msg = "<div style='text-align: center;'><a href='http://www.rocketsciencesports.com/'><img src='http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/rss-white-logo.png' style='max-width: 100%;'></a>";
+	$msg = "<div style='text-align: center;'>";
 
 	$customRandId = mt_rand(10000, 99999);
-$msg .= '
+$msg = '
 
 <div class="main-menu" style="max-width: 700px;margin:0 auto 20px; font-family: sans-serif;position: relative; top: 0px;background: linear-gradient(to bottom, #282d33 0%, #151a20 100%);">
-		<div class="container">
-			<div id="header-nav" class="skip-content nav-content" style="display: block;padding: 0;">
+		<style type="text/css">
+{{css file="css/email-inline_1.css"}}
+table { width: 100%; }
+</style>
+<div style="background-color: white; max-width: 700px; margin: 0 auto; font-family: sans-serif;">
+<div class="main-menu"
+	style="text-align: center; vertical-align: top; max-width: 700px; margin: 0 auto 20px; font-family: sans-serif; position: relative; top: 0px; background-color: #555;">
+	<div style="background-color: black;">
+	<a href="http://www.rocketsciencesports.com/"><img
+		src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/black-white-logo.jpg"
+		style="max-width: 100%;"></a>
+	</div>
+	<div class="container">
+		<div id="header-nav" class="skip-content nav-content"
+			style="display: block; padding: 0;">
 
 
-			<div class="nav-container" style="position: relative;z-index: 4;width: 100%;background: none;">
-		<div class="nav" style="margin: 0 auto; padding-left: 0;list-style: none;">
+			<div class="nav-container"
+				style="position: relative; z-index: 4; width: 100%; background: none;">
+				<div class="nav"
+					style="margin: 0 auto; padding-left: 0; list-style: none;">
 
 
-    	<ul id="nav" class="grid-full" style="position: relative;z-index: 9;width: 100%;padding: 0;list-style-type: none;">
+					<ul id="nav" class="grid-full"
+						style="position: relative; z-index: 9; width: 100%; padding: 0; list-style-type: none; margin-top: 0;">
 
 
-		<li class="level nav-1 first parent  no-level-thumbnail" style="border-right: none;display: inline-block;">
-		<a href="http://www.rocketsciencesports.com/shop.html" class="" style="font-size: 16px;display: block;text-decoration: none;position: relative;font-weight: 700;text-transform: uppercase;padding: 0;color: #a4adbb;">
-		<div class="thumbnail"></div>
-		<span style="background: none;display: block;padding: 15px 20px;cursor: pointer;white-space: normal;position: relative;z-index: 2;line-height: 30px;text-shadow: 1px 1px 1px #212121;">Shop</span><span class="spanchildren"></span>
-		</a>
+						<li class="level nav-1 first parent  no-level-thumbnail"
+							style="border-right: none; display: inline-block;"><a
+							href="http://www.rocketsciencesports.com/shop.html" class=""
+							style="font-size: 16px; display: block; text-decoration: none; position: relative; font-weight: 700; text-transform: uppercase; padding: 0; color: #ccc;">
+								<div class="thumbnail"></div> <span
+								style="background: none; display: block; padding: 15px 20px; cursor: pointer; white-space: normal; position: relative; z-index: 2; line-height: 30px; text-shadow: 1px 1px 1px #212121;">Shop</span><span
+								class="spanchildren"></span>
+						</a></li>
+						<li class="level nav-2 parent  no-level-thumbnail "
+							style="border-right: none; display: inline-block;"><a
+							href="http://www.rocketsciencesports.com/custom.html"
+							style="font-size: 16px; display: block; text-decoration: none; position: relative; font-weight: 700; text-transform: uppercase; padding: 0; color: #ccc;">
+								<div class="thumbnail"></div> <span
+								style="background: none; display: block; padding: 15px 20px; cursor: pointer; white-space: normal; position: relative; z-index: 2; line-height: 30px; text-shadow: 1px 1px 1px #212121;">Custom</span><span
+								class="spanchildren"></span>
+						</a></li>
+						<li class="level nav-3  no-level-thumbnail "
+							style="border-right: none; display: inline-block;"><a
+							href="http://www.rocketsciencesports.com/team-of-one.html"
+							style="font-size: 16px; display: block; text-decoration: none; position: relative; font-weight: 700; text-transform: uppercase; padding: 0; color: #ccc;">
+								<div class="thumbnail"></div> <span
+								style="background: none; display: block; padding: 15px 20px; cursor: pointer; white-space: normal; position: relative; z-index: 2; line-height: 30px; text-shadow: 1px 1px 1px #212121;">Team
+									of One</span>
+						</a></li>
+						<li class="level nav-4  no-level-thumbnail "
+							style="border-right: none; display: inline-block;"><a
+							href="http://www.rocketsciencesports.com/team-portal.html"
+							style="font-size: 16px; display: block; text-decoration: none; position: relative; font-weight: 700; text-transform: uppercase; padding: 0; color: #ccc;">
+								<div class="thumbnail"></div> <span
+								style="background: none; display: block; padding: 15px 20px; cursor: pointer; white-space: normal; position: relative; z-index: 2; line-height: 30px; text-shadow: 1px 1px 1px #212121;">Team
+									Portal</span>
+						</a></li>
+						<li class="level nav-5 last parent  no-level-thumbnail "
+							style="border-right: none; display: inline-block;"><a
+							href="http://www.rocketsciencesports.com/events.html"
+							style="font-size: 16px; display: block; text-decoration: none; position: relative; font-weight: 700; text-transform: uppercase; padding: 0; color: #ccc;">
+								<div class="thumbnail"></div> <span
+								style="background: none; display: block; padding: 15px 20px; cursor: pointer; white-space: normal; position: relative; z-index: 2; line-height: 30px; text-shadow: 1px 1px 1px #212121;">Events</span><span
+								class="spanchildren"></span>
+						</a></li>
 
-		</li><li class="level nav-2 parent  no-level-thumbnail " style="border-right: none;display: inline-block;">
-		<a href="http://www.rocketsciencesports.com/custom.html" style="font-size: 16px;display: block;text-decoration: none;position: relative;font-weight: 700;text-transform: uppercase;padding: 0;color: #a4adbb;">
-		<div class="thumbnail"></div>
-		<span style="background: none;display: block;padding: 15px 20px;cursor: pointer;white-space: normal;position: relative;z-index: 2;line-height: 30px;text-shadow: 1px 1px 1px #212121;">Custom</span><span class="spanchildren"></span>
-		</a>
-
-		</li><li class="level nav-3  no-level-thumbnail " style="border-right: none;display: inline-block;">
-		<a href="http://www.rocketsciencesports.com/team-of-one.html" style="font-size: 16px;display: block;text-decoration: none;position: relative;font-weight: 700;text-transform: uppercase;padding: 0;color: #a4adbb;">
-		<div class="thumbnail"></div>
-		<span style="background: none;display: block;padding: 15px 20px;cursor: pointer;white-space: normal;position: relative;z-index: 2;line-height: 30px;text-shadow: 1px 1px 1px #212121;">Team of One</span>
-		</a>
-
-		</li><li class="level nav-4  no-level-thumbnail " style="border-right: none;display: inline-block;">
-		<a href="http://www.rocketsciencesports.com/team-portal.html" style="font-size: 16px;display: block;text-decoration: none;position: relative;font-weight: 700;text-transform: uppercase;padding: 0;color: #a4adbb;">
-		<div class="thumbnail"></div>
-		<span style="background: none;display: block;padding: 15px 20px;cursor: pointer;white-space: normal;position: relative;z-index: 2;line-height: 30px;text-shadow: 1px 1px 1px #212121;">Team Portal</span>
-		</a>
-
-		</li><li class="level nav-5 last parent  no-level-thumbnail " style="border-right: none;display: inline-block;">
-		<a href="http://www.rocketsciencesports.com/events.html" style="font-size: 16px;display: block;text-decoration: none;position: relative;font-weight: 700;text-transform: uppercase;padding: 0;color: #a4adbb;">
-		<div class="thumbnail"></div>
-		<span style="background: none;display: block;padding: 15px 20px;cursor: pointer;white-space: normal;position: relative;z-index: 2;line-height: 30px;text-shadow: 1px 1px 1px #212121;">Events</span><span class="spanchildren"></span>
-		</a>
-
-		</li>
-
-				</ul>
+					</ul>
+				</div>
 			</div>
-			</div>
-			</div>
-			</div>
-			</div>
+		</div>
+	</div>
+</div>
 		<div style="clear: both;"></div>
 		<div style="text-align: left; max-width: 615px; margin: 0 auto;">
 		<p style="font-size: 18px; font-weight: bold;">Hi '.$_SESSION['custom']['full-name'].',</p>
@@ -282,57 +316,20 @@ $msg .= "        	</td></tr>
 		<tr><td style='padding: 10px; text-align: right; font-weight: bold;'>Zip: </td><td style='padding: 10px;'>".$_SESSION['custom']['zip']."</td></tr>
 		<tr><td style='padding: 10px; text-align: right; font-weight: bold;'>Country: </td><td style='padding: 10px;'>".$_SESSION['custom']['country']."</td></tr>
 		</table>
-
-		<a href='http://www.rocketsciencesports.com/custom.html'><img style='max-width: 100%;' src='http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/custom-your-logo.png'></a></div>
+</div>
 
 		";
 
-$msg .= '<div class="promos" style="background-color: white;max-width: 950px;font-family: sans-serif;margin: 20px auto; text-align: center;">
-	<div class="follow-us">
-		<div class="follow-item" style="display: inline-block;">
-			<div style="float: left; margin: 0 5px;">
-				<a style="color: #777; font-size: 18px; text-decoration: none;" href="http://www.facebook.com/rocketsciencesports"><img style="width: 100px;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/facebook.png" alt=""></a>
-			</div>
-			<div style="float: left; margin: 72px 15px 0 0; width: 105px; line-height: 10px; text-align: left;">
-				<a style="color: #777; font-size: 18px; text-decoration: none;" href="http://www.facebook.com/rocketsciencesports" target="_blank">FACEBOOK
-					<span style="font-size: 10px; color: darkgrey;">FOLLOW</span>
-				</a>
-			</div>
-		</div>
-		<div class="follow-item" style="display: inline-block;">
-			<div style="float: left; margin: 0 5px;">
-				<a style="color: #777; font-size: 18px; text-decoration: none;" href="https://twitter.com/rocketmanmarcin"><img style="width: 100px;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/twitter.png" alt=""></a>
-			</div>
-			<div style="float: left; margin: 72px 30px 0 0; width: 88px; line-height: 10px; text-align: left;">
-				<a style="color: #777; font-size: 18px; text-decoration: none;" href="https://twitter.com/rocketmanmarcin" target="_blank">TWITTER
-					<span style="font-size: 10px; color: darkgrey;">FOLLOW</span>
-				</a>
-			</div>
-		</div>
-		<div class="follow-item" style="display: inline-block;">
-			<div style="float: left; margin: 0 5px;">
-				<a style="color: #777; font-size: 18px; text-decoration: none;" href="http://www.pinterest.com/rocketsciences/"><img style="width: 100px;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/pinterest.png" alt=""></a>
-			</div>
-			<div style="float: left; margin: 72px 15px 0 0; width: 105px; line-height: 10px; text-align: left;">
-				<a style="color: #777; font-size: 18px; text-decoration: none;" href="http://www.pinterest.com/rocketsciences/">PINTEREST <span style="font-size: 10px; color: darkgrey;">FOLLOW</span></a>
-			</div>
-		</div>
-		<div class="follow-item" style="display: inline-block;">
-			<div style="float: left; margin: 0 5px;">
-				<a style="color: #777; font-size: 18px; text-decoration: none;" href="http://www.rocketsciencesports.com/wechat/"><img style="width: 100px;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/wechat-logo.jpg" alt=""></a>
-			</div>
-			<div style="float: left; margin: 72px 15px 0 0; width: 105px; line-height: 10px; text-align: left;">
-				<a style="color: #777; font-size: 18px; text-decoration: none;" href="http://www.rocketsciencesports.com/wechat/">WECHAT <span style="font-size: 10px; color: darkgrey;">FOLLOW</span></a>
-			</div>
-		</div>
-		<div style="clear: both;">&nbsp;</div>
-	</div>
+$msg .= '<div style="text-align: center; background-color: white;">
+	<a href="https://www.rocketsciencesports.com/"><img style="display: inline-block;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/web.png"></a>
+	<a href="https://www.instagram.com/rocketsciencesports/?hl=en"><img style="display: inline-block;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/instagram.png"></a>
+	<a href="https://www.pinterest.com/rocketsciences"><img style="display: inline-block;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/pinterest.png"></a>
+	<a href="https://www.facebook.com/rocketsciencesports/"><img style="display: inline-block;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/facebook.png"></a>
+	<a href="https://www.youtube.com/c/RocketScienceSports"><img style="display: inline-block;" src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/youtube.png"></a>
 </div>
-
-		<div style="text-align: center;"><img src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/save-10.png" style="display: inline-block;">
-		<img src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/order-online.png" style="display: inline-block;">
-		<img src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/free-shipping.png" style="display: inline-block;">
-		</div>
+<a href="http://www.rocketsciencesports.com/custom.html"><img
+	style="max-width: 100%;"
+	src="http://www.rocketsciencesports.com/skin/frontend/tm_themes/theme746/images/custom-your-logo.png"></a>
 
 ';
 	/*mail($to, $subject, $msg, $headers);
@@ -340,15 +337,14 @@ $msg .= '<div class="promos" style="background-color: white;max-width: 950px;fon
 	$customer = $_SESSION['custom']['email'];
 	mail($customer, $subject, $msg, $headers);*/
 
-	$resource = Mage::getSingleton('core/resource');
-	$writeConnection = $resource->getConnection('core_write');
+    $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+    $connection = $resource->getConnection();
+    $tableName = $resource->getTableName('custom_msg'); //gives table name with prefix
+    $query = "INSERT INTO $tableName (`msg_id`,`msg`, `custom_rand_id`, `email`, `name`) VALUES (NULL, '".addslashes($msg)."', '".$customRandId."', '".$_SESSION['custom']['email']."', '".$_SESSION['custom']['full-name']."')";
+	$result = $connection->query($query);
 	
-	$query = "INSERT INTO `custom_msg` (`msg_id`,`msg`, `custom_rand_id`, `email`, `name`) VALUES (NULL, '".addslashes($msg)."', '".$customRandId."', '".$_SESSION['custom']['email']."', '".$_SESSION['custom']['full-name']."')";
-	$result = $writeConnection->query($query);
-	
-	$readConnection = $resource->getConnection('core_read');
-	$query = "SELECT * from `custom_msg` where custom_rand_id = '".$customRandId."'";
-	$msgId = $readConnection->fetchAll($query);
+	$query = "SELECT * from $tableName where custom_rand_id = '".$customRandId."'";
+	$msgId = $connection->fetchAll($query);
 	
 	$msg2 = "<p>Hi ".$_SESSION['custom']['full-name'].",</p>
 	
@@ -407,12 +403,23 @@ $msg .= '<div class="promos" style="background-color: white;max-width: 950px;fon
     		//Server settings
 	    $mail->SMTPDebug = 0;                                 // Enable verbose debug output
 	    $mail->isSMTP();                                      // Set mailer to use SMTP
-	    $mail->Host = 'mail.rocketsciencesports.com';  // Specify main and backup SMTP servers
+	    $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
 	    $mail->SMTPAuth = true;                               // Enable SMTP authentication
 	    $mail->Username = 'sales@rocketsciencesports.com';                 // SMTP username
-	    $mail->Password = 'T$67CsNWu;GP';                           // SMTP password
+	    //$mail->Password = 'T$67CsNWu;GP';                           // SMTP password
+	    $mail->Password = 'R0ck3tSc13nc3!';
 	    $mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
-	    $mail->Port = 465;                                    // TCP port to connect to
+	    //$mail->Port = 465;                                    // TCP port to connect to
+	    $mail->Port = 465;
+	    
+	    /*$mail->IsSMTP(); // enable SMTP
+	    $mail->SMTPDebug = 2;  // debugging: 1 = errors and messages, 2 = messages only
+	    $mail->SMTPAuth = true;  // authentication enabled
+	    $mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for GMail
+	    $mail->Host = 'smtp.gmail.com';
+	    $mail->Port = 465;
+	    $mail->Username = 'webmaster@vectorns.com';
+	    $mail->Password = '';*/ 
 
 	    //Recipients
 	    $mail->setFrom('sales@rocketsciencesports.com');
@@ -429,12 +436,14 @@ $msg .= '<div class="promos" style="background-color: white;max-width: 950px;fon
 	    	$mail2 = new PHPMailer(true);
 	    	$mail2->SMTPDebug = 0;                                 // Enable verbose debug output
 	    	$mail2->isSMTP();                                      // Set mailer to use SMTP
-	    	$mail2->Host = 'mail.rocketsciencesports.com';  // Specify main and backup SMTP servers
+	    	$mail2->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
 	    	$mail2->SMTPAuth = true;                               // Enable SMTP authentication
 	    	$mail2->Username = 'sales@rocketsciencesports.com';                 // SMTP username
-	    	$mail2->Password = 'T$67CsNWu;GP';                           // SMTP password
+	    	//$mail2->Password = 'T$67CsNWu;GP';                           // SMTP password
+		$mail2->Password = 'R0ck3tSc13nc3!';
 	    	$mail2->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
-	    	$mail2->Port = 465;                                    // TCP port to connect to
+	    	//$mail2->Port = 465;                                    // TCP port to connect to
+		$mail2->Port = 465;
 	    	
 	    	//Recipients
 	    	$mail2->setFrom('sales@rocketsciencesports.com');

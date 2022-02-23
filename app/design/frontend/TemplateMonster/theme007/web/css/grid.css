@@ -60,6 +60,11 @@ footer, header, hgroup, menu, nav, main, time, section {
 ol, ul {
   list-style: none; }
 
+.product.attribute.description ol, .product.attribute.description ul {
+	list-style: disc;
+	margin-left: 30px;
+}
+
 blockquote, q {
   quotes: none; }
 
@@ -570,10 +575,10 @@ html.lt-ie10 .row-no-gutter, .row-no-gutter {
   .row > .col-sm-preffix-8 {
     margin-left: 66.66667%; }
   .row > .col-sm-9 {
-    -webkit-flex-basis: 75%;
-    -ms-flex-preferred-size: 75%;
-    flex-basis: 75%;
-    max-width: 75%; }
+    -webkit-flex-basis: 100%;
+    -ms-flex-preferred-size: 100%;
+    flex-basis: 100%;
+    max-width: 100%; }
   .row > .col-sm-preffix-9 {
     margin-left: 75%; }
   .row > .col-sm-10 {

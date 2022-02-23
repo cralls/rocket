@@ -64,7 +64,7 @@
     }
     .label:not(.admin__field-label) {
       @media (min-width: $screen-lg-min) {
-        @include flex-basis(30%);
+        @include flex-basis(7%);
       }
     }
     .select2-container {

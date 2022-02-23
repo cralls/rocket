@@ -5,3 +5,5 @@
     'VNS_Admin',
     __DIR__
 );
+
+require_once(BP.'/lib/internal/dompdf/autoload.inc.php');

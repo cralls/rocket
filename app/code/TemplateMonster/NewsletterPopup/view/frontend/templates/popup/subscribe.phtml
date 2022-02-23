@@ -1,7 +1,12 @@
 <?php
 /** @var \Magento\Newsletter\Block\Subscribe $block */
 $id = uniqid('newsletter-'); ?>
-
+<style type="text/css">
+.field-recaptcha {
+    position: absolute;
+    bottom: 40px;
+}
+</style>
 <div class="block newsletter">
     <form class="form subscribe"
         novalidate

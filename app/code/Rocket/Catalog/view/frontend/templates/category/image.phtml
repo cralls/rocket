@@ -20,7 +20,7 @@
     $_imgHtml   = '';
     if ($_imgUrl = $_category->getImageUrl()) {
         $_imgHtml = '<div class="category-image">';
-        $_imgHtml .= '<h1 style="position: absolute;font-family: IMPACT, Gill Sans MT, Calibri, sans-serif;font-size: 100px !important;font-weight: 500 !important;color: #fff;text-transform: uppercase;text-shadow: 2px 2px 4px #000;margin-top:60px;margin-left: 50px;">'.$_category->getName().'</h1>';
+        $_imgHtml .= '<h1>'.$_category->getName().'</h1>';
         $_imgHtml .= '<img src="' . $_imgUrl . '" alt="' . $block->escapeHtml($_category->getName()) . '" title="' . $block->escapeHtml($_category->getName()) . '" class="image" /></div>';
         $_imgHtml = $_helper->categoryAttribute($_category, $_imgHtml, 'image');
         /* @escapeNotVerified */ echo $_imgHtml;

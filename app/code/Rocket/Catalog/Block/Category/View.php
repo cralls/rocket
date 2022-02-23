@@ -22,23 +22,54 @@ class View extends \Magento\Catalog\Block\Category\View
 
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
+        \Magento\Customer\Model\Session $customerSession,
         \Magento\Catalog\Model\Layer\Resolver $layerResolver,
         \Magento\Framework\Registry $registry,
         \Magento\Catalog\Helper\Category $categoryHelper,
         CategoryAttributeRepositoryInterface $categoryAttributeRepository,
         CategoryResourceModel $categoryResourceModel,
+        \Magento\Catalog\Model\CategoryRepository $categoryRepository,
+        \Magento\Catalog\Model\Product $product,
         array $data = []
     )
     {
+        $this->customerSession = $customerSession;
         $this->categoryAttributeRepository = $categoryAttributeRepository;
         $this->categoryResourceModel = $categoryResourceModel;
+        $this->categoryRepository = $categoryRepository;
+        $this->product = $product;
         parent::__construct($context, $layerResolver, $registry, $categoryHelper, $data);
     }
 
-    public function getShoppingEndDates()
+    public function getShoppingEndDates($order = null)
     {
         /** @var \Magento\Catalog\Model\Category $category */
-        $category = $this->getCurrentCategory();
+        if(!is_null($order)) {
+            error_log("Order id for team portal email is ".$order->getId()."\r\n", 3, '/home/rocketsc/public_html/error_log_portal');
+            if($order->getTeamPortal() > 0) {
+                $category = $this->categoryRepository->get($order->getTeamPortal());
+            } else {
+                error_log("Team portal is not set on order yet so going to set it"."\r\n", 3, '/home/rocketsc/public_html/error_log_portal');
+                foreach($order->getAllItems() as $item) {
+                    $product = $this->product->load($item->getProductId());
+                    $categoryIds = $product->getCategoryIds();
+                    foreach($categoryIds as $categoryId) {
+                        $childCategory = $this->categoryRepository->get($categoryId);
+                        if($childCategory->getParentId() == '108') {
+                            error_log("Child category is ".$categoryId." and parent is Team Portals"."\r\n", 3, '/home/rocketsc/public_html/error_log_portal');
+                            $category = $childCategory;
+                        }
+                    }
+                }
+            }
+        } elseif($this->customerSession->getTeamPortal() > 0) {
+            $category = $this->categoryRepository->get($this->customerSession->getTeamPortal());
+        } else {
+            $category = $this->getCurrentCategory();
+        }
+        if(is_null($category)) return false;
+        //$customAttribute = $category->getData('custom_attribute');
+        error_log("Category ID is ".$category->getId());
         $customAttribute = $this->categoryAttributeRepository->get('custom_attribute');
         $attributeRawValue = $this->categoryResourceModel->getAttributeRawValue(
             $category->getId(),

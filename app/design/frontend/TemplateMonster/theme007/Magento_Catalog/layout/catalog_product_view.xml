@@ -10,6 +10,9 @@
         <css src="mage/gallery/gallery.css" media="all"/>
     </head>
     <referenceContainer name="columns" htmlClass="columns container layout_1"/>
+    <referenceContainer name="product.info.extrahint">
+    	<block class="VNS\Custom\Block\TeamPortal" name="product.info.teamportal" before="product.info.addtocart" template="VNS_Custom::team_portal.phtml"/>
+ 	</referenceContainer>
     <move element="page.main.title" destination="product.info.price" after="product.info.stock.sku"/>
     <move element="product.info.review" destination="product.info.main"/>
     <move element="product.info.overview" destination="product.info.main" after="product.info.price"/>
