@@ -45,10 +45,10 @@ class PrintLabels extends \Magento\Backend\App\Action
                             .rdiv span {}
 							.wdiv { width: 236px; font-size: 14px; font-weight: bold; text-align: center; border: 1px solid black; padding: 5px; }
 							.bbdiv { display: inline-block; border: 1px solid black; height: 100px; }
-							.bdiv { display: inline-block; border: 1px solid black; width: 100%; text-align: center; padding-left: 25px; width: 241px;  }
+							.bdiv { display: inline-block; border: 1px solid black; text-align: center; padding-left: 25px; width: 221px;  }
 							.idiv { display: inline-block; padding: 5px; width: 90px; text-align: center; margin-top: 3px; font-size: 14px; }
-							.ddiv { display: inline-block; border: 2px solid black; width: 100px; font-size: 28px; text-align: center; margin-bottom: 5px; }
-							.img { height: 180px; }
+							.ddiv { display: inline-block; border: 2px solid black; width: 100px; height: 50px; font-size: 28px; text-align: center; margin-bottom: 5px; }
+							.img { height: 180px; max-width: 180px; }
                             .imageDiv { display: inline-block; max-height: 150px; width: 80px; padding-left: 2px; }
                             .page {page-break-after: always;}
                             .rotate {transform: rotate(90deg);}
@@ -56,7 +56,7 @@ class PrintLabels extends \Magento\Backend\App\Action
         $heartImage = '<img src="https://www.rocketsciencesports.com/media/wysiwyg/rss-heart.jpg" class="img"/><br>';
         
         //$htmlData .= "<div class='page'>";
-		//$htmlData .= "<div style='width: 700px;'>";
+		//$htmlData .= "<div style='width: 700px;'>";			
 		
 		$it = 0;
 		$p = 0;
@@ -102,6 +102,9 @@ class PrintLabels extends \Magento\Backend\App\Action
 					    if(strpos(strtolower($attribute ['label']), "gender") !== false) $gender = isset($attribute ['value']) ? $attribute ['value'] : '&nbsp;';
 					}
 				}
+				
+				$extraStyle = strlen($size) > 7 ? 'style="font-size: 18px;"' : '';
+				
 				$genders = [5567=>'Men',5568=>'Women',5569=>'Boys',5570=>'Girls',5571=>'Unisex'];
 				$gender = $product->getGender() != '' ? $genders[$product->getGender()] : '&nbsp;';
 				
@@ -121,7 +124,7 @@ class PrintLabels extends \Magento\Backend\App\Action
 				$htmlData .= "<div class='lrdiv'><div class='ldiv'><span>PART NUMBER:<span></div><div class='rdiv'><span style='font-weight: bold; font-size: 14px;'>".$product->getSku()."</span></div></div>";
 				$htmlData .= "<div class='lrdiv'><div class='ldiv'><span>DESCRIPTION:</span></div><div class='rdiv'><span>".$item->getName()."</span></div></div>";
 				$htmlData .= "<div class='wdiv'>".$billingAddress->getFirstName()." ".$billingAddress->getLastName()."</div>";
-				$htmlData .= "<div class='bdiv'><div class='idiv'>GENDER</div><div class='idiv'>SIZE</div><br><div class='ddiv'>".$gender."</div><div class='ddiv'>".$size."</div></div>";
+				$htmlData .= "<div class='bdiv'><div class='idiv'>GENDER</div><div class='idiv'>SIZE</div><br><div class='ddiv'>".$gender."</div><div class='ddiv' ".$extraStyle.">".$size."</div></div>";
 				$htmlData .= "<div class='wdiv' style='border: 0px;'><img src='".$barcode."' style='height: 40px; max-width: 240px;'/></div>";
 				$htmlData .= "</div>";
 				
