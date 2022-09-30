@@ -94,7 +94,7 @@ $version = $productMetadata->getVersion();
                                 <?php /* @escapeNotVerified */ echo $_helper->productAttribute($_product, $_product->getName(), 'name'); ?>
                             </a>
                         </strong>
-                        <?php if ($showDescription):?>
+                        <?php if (false && $showDescription):?>
                             <div class="product description product-item-description" itemprop="description">
                                 <?php /* @escapeNotVerified */ echo $_helper->productAttribute($_product, $_product->getShortDescription(), 'short_description') ?>
                                 <a href="<?php /* @escapeNotVerified */ echo $_product->getProductUrl() ?>" title="<?php /* @escapeNotVerified */ echo $_productNameStripped ?>"
@@ -125,14 +125,14 @@ $version = $productMetadata->getVersion();
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
-                                <?php if ($block->getMode() == 'grid'): ?>
-                                    <?php echo $block->getReviewsSummaryHtml($_product, $templateType); ?>
-                                <?php endif; ?>
                                 <div data-role="add-to-links" class="actions-secondary"<?php echo strpos($pos, $viewMode . '-secondary') ? $position : ''; ?>>
                                     <?php if ($addToBlock = $block->getChildBlock('addto')): ?>
                                         <?php echo $addToBlock->setProduct($_product)->getChildHtml(); ?>
                                     <?php endif; ?>
                                 </div>
+                                <?php if ($block->getMode() == 'grid'): ?>
+                                    <?php echo $block->getReviewsSummaryHtml($_product, $templateType); ?>
+                                <?php endif; ?>
                             </div>
                             <?php if ($block->getMode() == 'list'): ?>
                                 <?php echo $block->getReviewsSummaryHtml($_product, $templateType); ?>

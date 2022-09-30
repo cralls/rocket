@@ -6962,7 +6962,7 @@ dl.custom-page dd {
   visibility: hidden; }
 
 .products .product-item .product-item-name {
-  display: block; }
+  display: block; min-height: 50px; font-weight: bold; font-size: 14px; }
 .products .product-item .rating-summary {
   display: inline-block; }
   .products .product-item .rating-summary .label {
@@ -8214,7 +8214,7 @@ body.catalog-product-compare-index .table-caption {
       padding-left: 25px;
       padding-right: 25px; } }
 .products-grid .product-item-info {
-  position: relative; }
+  position: relative; text-align: center; text-transform: uppercase; }
 .products-grid .product-item-name {
   font-weight: normal;
   display: block;

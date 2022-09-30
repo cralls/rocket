@@ -33,12 +33,13 @@ class TeamPortal extends \Magento\Framework\View\Element\Template
         foreach($categoryIds as $categoryId) {
             $category = $this->categoryFactory->create()->load($categoryId);
             if($category->getParentId() == '108') {
-                if($category->getName() == 'LandShark') {
+                //if($category->getName() == 'LandShark') {
                     $this->setLandshark(1);
                     $sold = 0;
-                    $orders = $this->orderCollectionFactory->create()->addAttributeToSelect('*')->addFieldToFilter('team_portal', '193');
+                    $orders = $this->orderCollectionFactory->create()->addAttributeToSelect('*')->addFieldToFilter('team_portal', $category->getId());
                     foreach($orders as $order) {
                         $dates = explode(",", $category->getData('custom_attribute'));
+                        if(!isset($dates[2])) continue;
                         $startDate = strtotime(trim($dates[2]));
                         $endDate = strtotime(trim($dates[0]));
                         $orderDate = strtotime($order->getCreatedAt());
@@ -56,7 +57,7 @@ class TeamPortal extends \Magento\Framework\View\Element\Template
                         }
                     }
                     $this->setSold($sold);
-                }
+                //}
                 $this->customerSession->setTeamPortal($categoryId);
             }
         }

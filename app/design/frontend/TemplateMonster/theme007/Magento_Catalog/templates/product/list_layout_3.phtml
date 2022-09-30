@@ -94,7 +94,7 @@ $version = $productMetadata->getVersion();
                                 <?php /* @escapeNotVerified */ echo $_helper->productAttribute($_product, $_product->getName(), 'name'); ?>
                             </a>
                         </strong>
-                        <?php if ($showDescription):?>
+                        <?php if (false && $showDescription):?>
                             <div class="product description product-item-description" itemprop="description">
                                 <?php /* @escapeNotVerified */ echo $_helper->productAttribute($_product, $_product->getShortDescription(), 'short_description') ?>
                                 <a href="<?php /* @escapeNotVerified */ echo $_product->getProductUrl() ?>" title="<?php /* @escapeNotVerified */ echo $_productNameStripped ?>"

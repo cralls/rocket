@@ -60,6 +60,22 @@
             		</item>
         		</argument>
     		</action>
+    		<action name="Convert to UPS">
+        		<argument name="data" xsi:type="array">
+	            	<item name="config" xsi:type="array">
+                		<item name="type" xsi:type="string">convert_ups</item>
+                		<item name="url" xsi:type="string">/rocketadmin/vns_admin/setshipping/index</item>
+                		<item name="label" xsi:type="string" translate="true">Convert to UPS</item>
+            		</item>
+        		</argument>
+    		</action>
+    		<action name="print_shipping_label">
+                <settings>
+                    <url path="adminhtml/order_shipment/massPrintShippingLabel"/>
+                    <type>print_shipping_label</type>
+                    <label translate="true">Print Shipping Labels</label>
+                </settings>
+            </action>
 		</massaction>
         <!-- Paging -->
         <paging name="listing_paging">

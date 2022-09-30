@@ -48,7 +48,7 @@ class PrintLabels extends \Magento\Backend\App\Action
 							.bdiv { display: inline-block; border: 1px solid black; text-align: center; padding-left: 25px; width: 221px;  }
 							.idiv { display: inline-block; padding: 5px; width: 90px; text-align: center; margin-top: 3px; font-size: 14px; }
 							.ddiv { display: inline-block; border: 2px solid black; width: 100px; height: 50px; font-size: 28px; text-align: center; margin-bottom: 5px; }
-							.img { height: 180px; max-width: 180px; }
+							.img { max-width: 180px; }
                             .imageDiv { display: inline-block; max-height: 150px; width: 80px; padding-left: 2px; }
                             .page {page-break-after: always;}
                             .rotate {transform: rotate(90deg);}

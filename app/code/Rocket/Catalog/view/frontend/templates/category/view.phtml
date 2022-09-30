@@ -12,6 +12,7 @@ if(!is_null($order) && $order->getTeamPortal() > 0) {
 } else {
     $shoppingEndDates = $block->getShoppingEndDates();
 }
+if(!is_array($shoppingEndDates)) $shoppingEndDates = [];
 ?>
 <?php if (count($shoppingEndDates) > 1): ?>
     <?php
