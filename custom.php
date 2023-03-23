@@ -8,7 +8,7 @@ require 'PHPMailer/src/SMTP.php';
 
 use Magento\Framework\App\Bootstrap;
 
-require __DIR__ . '/app/bootstrap.php';
+require __DIR__ . '/../app/bootstrap.php';
 $bootstrap = \Magento\Framework\App\Bootstrap::create(BP, $_SERVER);
 
 $objectManager = $bootstrap->getObjectManager();

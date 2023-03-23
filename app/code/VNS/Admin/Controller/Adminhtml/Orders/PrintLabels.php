@@ -126,6 +126,7 @@ class PrintLabels extends \Magento\Backend\App\Action
 				$htmlData .= "<div class='wdiv'>".$billingAddress->getFirstName()." ".$billingAddress->getLastName()."</div>";
 				$htmlData .= "<div class='bdiv'><div class='idiv'>GENDER</div><div class='idiv'>SIZE</div><br><div class='ddiv'>".$gender."</div><div class='ddiv' ".$extraStyle.">".$size."</div></div>";
 				$htmlData .= "<div class='wdiv' style='border: 0px;'><img src='".$barcode."' style='height: 40px; max-width: 240px;'/></div>";
+				$htmlData .= "<div class='wdiv' style='border: 0px;'>".$product->getSrNumber()."</div>";
 				$htmlData .= "</div>";
 				
 				//$htmlData .= "<div style='display: inline-block; text-align: center;'><img src='https://www.rocketsciencesports.com/barcodes/rss-logo.png' style='width: 100px;'></div>";

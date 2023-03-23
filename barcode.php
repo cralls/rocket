@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+//ini_set('display_errors', 1);
+//error_reporting(E_ALL);
 require 'barcodes/src/BarcodeGenerator.php';
 require 'barcodes/src/BarcodeGeneratorPNG.php';
 
