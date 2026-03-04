@@ -2,6 +2,11 @@
 <page layout="3columns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd">
     <update handle="default_head_blocks"/>
     <body>
+    
+    	<referenceContainer name="after.body.start">
+            <block class="Magento\Framework\View\Element\Template" name="vns.gtag.block" template="Magento_Theme::html/gtag.phtml" />
+        </referenceContainer>
+    
         <!-- Inline scripts -->
         <referenceContainer name="before.body.end">
             <block class="Magento\Translation\Block\Js" name="translate" template="Magento_Translation::translate.phtml"/>
@@ -19,6 +24,7 @@
             </container>
         </referenceContainer>
 
+		<referenceBlock name="absolute_footer" remove="true" />
         <referenceBlock name="skip_to_content" remove="true" />
         <!-- Header. RD-Navbar END -->
 

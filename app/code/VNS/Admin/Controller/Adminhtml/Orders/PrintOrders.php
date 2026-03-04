@@ -127,8 +127,8 @@ class PrintOrders extends \Magento\Backend\App\Action
 		//header('Content-Disposition: attachment; filename=data.csv');
 		//fpassthru($file);
         
-        $resultRedirect = $this->result->create(ResultFactory::TYPE_REDIRECT);
+        /*$resultRedirect = $this->result->create(ResultFactory::TYPE_REDIRECT);
         $resultRedirect->setUrl($this->_redirect->getRefererUrl());
-        return $resultRedirect;
+        return $resultRedirect;*/
 	}
 }

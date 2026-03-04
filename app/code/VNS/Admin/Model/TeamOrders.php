@@ -3,7 +3,7 @@
 namespace VNS\Admin\Model;
 
 use Magento\Framework\Model\AbstractModel;
-use VNS\Admin\Model\ResourceModel\TeamPortal as ResourceModel;
+use VNS\Admin\Model\ResourceModel\TeamOrders as ResourceModel;
 
 class TeamOrders extends AbstractModel
 {

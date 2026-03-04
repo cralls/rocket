@@ -105,7 +105,43 @@ $version = $productMetadata->getVersion();
                             <a class="product-item-link"
                                href="<?php /* @escapeNotVerified */ echo $_product->getProductUrl() ?>">
                                 <?php /* @escapeNotVerified */ echo $_helper->productAttribute($_product, $_product->getName(), 'name'); ?>
-                            </a>
+                            </a><br>
+                            <span style="color:#777;"><?php echo $_product->getAttributeText('gender'); ?><br>
+                            <?php
+                            // Check the product type
+                            if ($_product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+                                // For configurable products, get the associated simple products
+                                $childProducts = $_product->getTypeInstance()->getUsedProducts($_product);
+                                $colors = [];
+                                $sizes = [];
+                                // Loop through the children and get the color attribute text
+                                foreach ($childProducts as $child) {
+                                    // getAttributeText returns the label (e.g., "Red") rather than the option id
+                                    $childColor = $child->getAttributeText('color');
+                                    // If a valid color is returned and it hasn’t been added already, add it to the array
+                                    if ($childColor && !in_array($childColor, $colors)) {
+                                        $colors[] = $childColor;
+                                    }
+                                    // getAttributeText returns the label (e.g., "Red") rather than the option id
+                                    $childSize = $child->getAttributeText('size');
+                                    // If a valid color is returned and it hasn’t been added already, add it to the array
+                                    if ($childSize && !in_array($childSize, $sizes)) {
+                                        $sizes[] = $childSize;
+                                    }
+                                }
+                                // Output the number of available unique colors
+                                if(count($colors) > 1) {
+                                    echo count($colors)." colors";
+                                } elseif(count($sizes) > 0) {
+                                    echo count($sizes)." sizes";
+                                }
+                            } else {
+                                // For simple products, simply output the color label
+                                $color = $_product->getAttributeText('color');
+                                if(strlen($color) > 0) echo 'Color: ' . $color;
+                            }
+                            ?>
+                            </span>
                         </strong>
                         <?php if (false && $showDescription):?>
                             <div class="product description product-item-description" itemprop="description">

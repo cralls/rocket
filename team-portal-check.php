@@ -9,7 +9,7 @@ ini_set('max_execution_time', '1440');
 
 use Magento\Framework\App\Bootstrap;
 
-require __DIR__ . '/app/bootstrap.php';
+require __DIR__ . '/../app/bootstrap.php';
 $bootstrap = \Magento\Framework\App\Bootstrap::create(BP, $_SERVER);
 
 $objectManager = $bootstrap->getObjectManager();
@@ -82,19 +82,23 @@ foreach($categories as $category) {
 								$teamOrders [$i . "-" . $it] ['qty'] = number_format ( $item->getData ( 'qty_ordered' ), 0 );
 								$teamOrders [$i . "-" . $it] ['price'] = number_format ( $item->getPrice (), 2 );
 								$teamOrders [$i . "-" . $it] ['email'] = $order->getCustomerEmail ();
-								foreach ( $options ['attributes_info'] as $attribute ) {
-									$it ++;
-									$teamOrders [$i . "-" . $it] ['orderId'] = '';
-									$teamOrders [$i . "-" . $it] ['purchase_date'] = '';
-									$teamOrders [$i . "-" . $it] ['name'] = '';
-									$teamOrders [$i . "-" . $it] ['description'] = $attribute ['label'] . ": " . $attribute ['value'];
+								if(isset($options['attributes_info'])) {
+    								foreach ( $options ['attributes_info'] as $attribute ) {
+    									$it ++;
+    									$teamOrders [$i . "-" . $it] ['orderId'] = '';
+    									$teamOrders [$i . "-" . $it] ['purchase_date'] = '';
+    									$teamOrders [$i . "-" . $it] ['name'] = '';
+    									$teamOrders [$i . "-" . $it] ['description'] = $attribute ['label'] . ": " . $attribute ['value'];
+    								}
 								}
-								foreach ( $options ['options'] as $attribute ) {
-									$it ++;
-									$teamOrders [$i . "-" . $it] ['orderId'] = '';
-									$teamOrders [$i . "-" . $it] ['purchase_date'] = '';
-									$teamOrders [$i . "-" . $it] ['name'] = '';
-									$teamOrders [$i . "-" . $it] ['description'] = $attribute ['label'] . ": " . $attribute ['value'];
+								if(isset($options['options'])) {
+    								foreach ( $options ['options'] as $attribute ) {
+    									$it ++;
+    									$teamOrders [$i . "-" . $it] ['orderId'] = '';
+    									$teamOrders [$i . "-" . $it] ['purchase_date'] = '';
+    									$teamOrders [$i . "-" . $it] ['name'] = '';
+    									$teamOrders [$i . "-" . $it] ['description'] = $attribute ['label'] . ": " . $attribute ['value'];
+    								}
 								}
 							} else {
 								$teamOrders [$i . "-" . $it] ['orderId'] = $order->getIncrementId();
@@ -144,9 +148,9 @@ foreach($categories as $category) {
     //$msg = '<a href="https://www.rocketsciencesports.com/teamOrders.php"><b>Click Here to Download Spreadsheet</b></a><br><br><br>';
     $msg = 'Click link to download spreadsheet -> https://www.rocketsciencesports.com/teamOrders.php';
     
-    require 'lib/PHPMailer/src/Exception.php';
-    require 'lib/PHPMailer/src/PHPMailer.php';
-    require 'lib/PHPMailer/src/SMTP.php';
+    require 'PHPMailer/src/Exception.php';
+    require 'PHPMailer/src/PHPMailer.php';
+    require 'PHPMailer/src/SMTP.php';
     
     if ($_REQUEST ['test'] == 1) {
         mail("cralls@vectorns.com", 'Team Portal Close Date for ' . $subject, $msg);

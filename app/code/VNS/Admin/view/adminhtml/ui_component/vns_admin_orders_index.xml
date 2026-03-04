@@ -33,6 +33,12 @@
         <columnsControls name="columns_controls" />
         <filters name="listing_filters" />
         <massaction name="listing_massaction">
+        	<!--argument name="data" xsi:type="array">
+		        <item name="config" xsi:type="array">
+		            <item name="selectProvider" xsi:type="string">buildSheetDataSource.vns_admin_orders_grid_data_source.listing_filters.ids</item>
+		            <item name="indexField" xsi:type="string">entity_id</item>
+		        </item>
+		    </argument-->
    			<action name="print_orders">
         		<argument name="data" xsi:type="array">
 	            	<item name="config" xsi:type="array">
@@ -76,6 +82,44 @@
                     <label translate="true">Print Shipping Labels</label>
                 </settings>
             </action>
+            <action name="create_invoice">
+			    <argument name="data" xsi:type="array">
+			        <item name="config" xsi:type="array">
+			            <item name="type" xsi:type="string">create_invoice</item>
+			            <item name="url" xsi:type="string">/rocketadmin/vns_admin/orders/massinvoice</item>
+			            <item name="label" xsi:type="string" translate="true">Mass Invoice</item>
+			            <item name="confirm" xsi:type="array">
+			                <item name="title" xsi:type="string" translate="true">Confirm</item>
+			                <item name="message" xsi:type="string" translate="true">Are you sure you want to create invoices for the selected orders?</item>
+			            </item>
+			        </item>
+			    </argument>
+			</action>
+			<action name="print_packing_slips">
+			    <argument name="data" xsi:type="array">
+			        <item name="config" xsi:type="array">
+			            <item name="type" xsi:type="string">print_packing_slips</item>
+			            <item name="url" xsi:type="string">/rocketadmin/sales/order/pdfshipments</item>
+			            <item name="label" xsi:type="string" translate="true">Print Packing Slips</item>
+			        </item>
+			    </argument>
+			</action>
+			<!--action name="change_status">
+			    <argument name="data" xsi:type="array">
+			        <item name="config" xsi:type="array">
+			            <item name="type" xsi:type="string">change_status</item>
+			            <item name="url" xsi:type="string">/admin/vns_admin/order/statuses</item>
+			            <item name="label" xsi:type="string" translate="true">Change Status</item>
+			            <item name="component" xsi:type="string">VNS_Admin/js/grid/columns/massactions</item>
+			            <item name="additionalData" xsi:type="array">
+			                <item name="provider" xsi:type="string">vns_admin_orders_index.vns_admin_orders_index_data_source</item>
+			                <item name="target" xsi:type="string">change_status</item>
+			                <item name="statusesUrl" xsi:type="string">/admin/vns_admin/order/statuses</item>
+			            </item>
+			        </item>
+			    </argument>
+			</action-->
+			
 		</massaction>
         <!-- Paging -->
         <paging name="listing_paging">

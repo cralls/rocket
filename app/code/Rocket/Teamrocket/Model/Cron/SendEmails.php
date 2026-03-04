@@ -70,7 +70,18 @@ The Rocket Fam";
             $nemail->setBodyHtml($msg);
             $nemail->setFrom('tamara@rocketsciencesports.com', 'Rocket Science Sports');
             $nemail->addTo($to);
-            $nemail->send();
+            try {
+                $nemail->send();
+                // Log successful send if needed
+                error_log(date('Y-m-d H:i:s') . " - Email sent successfully for ID: " . $email['id'] . "\r\n", 3, '/home/rocketsc/public_html/var/log/tr-email.log');
+                
+                // Save as sent
+                $sql = "UPDATE " . $tableName . " SET sent = 1 WHERE id = " . $email['id'];
+                $connection->query($sql);
+            } catch (\Exception $e) {
+                // Log detailed error information
+                error_log(date('Y-m-d H:i:s') . " - ERROR sending email for ID " . $email['id'] . ": " . $e->getMessage() . "\r\n", 3, '/home/rocketsc/public_html/var/log/tr-email.log');
+            }
             
             // Save as sent
             $sql = "update " . $tableName . " set sent = 1 where id = ".$email['id'];

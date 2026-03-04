@@ -7,6 +7,7 @@ use Magento\Backend\App\Action\Context;
 use Dompdf\Dompdf;
 use Magento\Ui\Component\MassAction\Filter;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
+use VNS\Admin\Picqer\Barcode\BarcodeGeneratorPNG;
 
 class PrintLabels extends \Magento\Backend\App\Action
 {
@@ -20,7 +21,8 @@ class PrintLabels extends \Magento\Backend\App\Action
         Filter $filter,
         ResultFactory $result,
 		CollectionFactory $collectionFactory,
-		Dompdf $dompdf
+		Dompdf $dompdf,
+        BarcodeGeneratorPNG $barcodeGenerator
         )
     {
         parent::__construct($context);
@@ -30,6 +32,7 @@ class PrintLabels extends \Magento\Backend\App\Action
         $this->filter = $filter;
 		$this->dompdf = $dompdf;
 		$this->collectionFactory = $collectionFactory;
+		$this->barcodeGenerator = $barcodeGenerator;
     }
 	
 	public function execute()
@@ -68,14 +71,15 @@ class PrintLabels extends \Magento\Backend\App\Action
 			    $product = $this->product->load($item->getProductId());
 			    
 				$pid = $product->getSku();
-				if(file_exists(getcwd().'/barcodes/image'.$pid.'.png')) {
-					$barcode = 'http://'.$_SERVER['HTTP_HOST'].'/barcodes/image'.$pid.'.png';
-				} else {
-					$data = base64_decode(file_get_contents('http://'.$_SERVER['HTTP_HOST'].'/barcode.php?oid='.urlencode($item->getSku())));
-					file_put_contents(getcwd().'/barcodes/image'.$pid.'.png', $data);
-					$barcode = 'http://'.$_SERVER['HTTP_HOST'].'/barcodes/image'.$pid.'.png';
+				$barcodeFilePath = getcwd() . '/barcodes/image' . $pid . '.png';
+				if (!file_exists($barcodeFilePath)) {
+				    // Generate the barcode and save it to a file
+				    $barcodeData = $this->barcodeGenerator->getBarcode($item->getSku(), $this->barcodeGenerator::TYPE_CODE_128);
+				    file_put_contents($barcodeFilePath, $barcodeData);
 				}
-			    
+				
+				$barcode = 'http://' . $_SERVER['HTTP_HOST'] . '/barcodes/image' . $pid . '.png';
+				
 				$options = $item->getProductOptions ();
 				if($p == 8) {
 				    $p = 0;
@@ -117,8 +121,8 @@ class PrintLabels extends \Magento\Backend\App\Action
 				$htmlData .= "<div style='width: 460px; margin-bottom: 10px;'>";
 				
 				// Images
-				$htmlData .= "<div style='float: right; text-align: center; width: 200px; height: 265px;'><img src='https://www.rocketsciencesports.com/barcodes/rss-logo.png' style='width: 182px; margin-top: 10px;'><br>";
-				$htmlData .= "<img src='https://www.rocketsciencesports.com/media/catalog/product".$product->getImage()."' class='img'></div>";
+				$htmlData .= "<div style='float: right; text-align: center; width: 200px; height: 265px;'><img src='http://".$_SERVER['HTTP_HOST']."/barcodes/rss-logo.png' style='width: 182px; margin-top: 10px;'><br>";
+				$htmlData .= "<img src='http://".$_SERVER['HTTP_HOST']."/media/catalog/product".$product->getImage()."' class='img'></div>";
 				
 				$htmlData .= "<div class='lrdiv'><div class='ldiv'><span>ORDER NUMBER:</span></div><div class='rdiv'><span style='font-weight: bold; font-size: 14px;'>".$order->getIncrementId()."</span></div></div>";
 				$htmlData .= "<div class='lrdiv'><div class='ldiv'><span>PART NUMBER:<span></div><div class='rdiv'><span style='font-weight: bold; font-size: 14px;'>".$product->getSku()."</span></div></div>";
@@ -138,7 +142,7 @@ class PrintLabels extends \Magento\Backend\App\Action
 				$p++;
 			}
 		}
-			
+		
 		//$htmlData .= "</div></div>";
         
 		//echo $htmlData; die();

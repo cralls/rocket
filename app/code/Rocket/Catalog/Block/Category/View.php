@@ -59,7 +59,7 @@ class View extends \Magento\Catalog\Block\Category\View
                             $cat = $this->categoryRepository->get($categoryId);
                             if($cat->getParentId() == '108') break;
                         }
-                        return $cat->getParentId();
+                        return isset($cat) ? $cat->getParentId() : 0;
                     }
                 }
             } else {
