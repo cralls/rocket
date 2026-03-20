@@ -36,6 +36,14 @@
              parent="Rss_CustomDesigns::custom_designs"
              resource="Rss_CustomDesigns::custom_designs"
              action="customdesigns/patterns/index"/>
+             
+         <add id="Rss_CustomDesigns::bom"
+		     title="BOM Materials"
+		     module="Rss_CustomDesigns"
+		     sortOrder="30"
+		     parent="Rss_CustomDesigns::custom_designs"
+		     action="customdesigns/bom/index"
+		     resource="Rss_CustomDesigns::custom_designs"/>
 
     </menu>
 </config>

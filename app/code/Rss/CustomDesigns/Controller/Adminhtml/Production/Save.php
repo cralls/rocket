@@ -2,56 +2,154 @@
 namespace Rss\CustomDesigns\Controller\Adminhtml\Production;
 
 use Magento\Backend\App\Action;
-use Rss\CustomDesigns\Model\ProductionRequestFactory;
-use Rss\CustomDesigns\Model\ResourceModel\ProductionRequest as ResourceModel;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Controller\Result\Redirect;
 
 class Save extends Action
 {
-    const ADMIN_RESOURCE = 'Rss_CustomDesigns::production_requests';
-
-    protected $factory;
-    protected $resource;
-
-    public function __construct(
-        Action\Context $context,
-        ProductionRequestFactory $factory,
-        ResourceModel $resource
-    ) {
-        parent::__construct($context);
-        $this->factory  = $factory;
-        $this->resource = $resource;
-    }
-
     public function execute()
     {
-        $data = $this->getRequest()->getPostValue();
-        if (!$data) {
-            return $this->_redirect('customdesigns/production/listing');
+        /** @var Redirect $resultRedirect */
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $request = $this->getRequest();
+        $post = $request->getPostValue();
+
+        if (!$post) {
+            return $resultRedirect->setPath('*/*/listing');
         }
 
-        $id    = $data['entity_id'] ?? null;
-        $model = $this->factory->create();
+        $objectManager = ObjectManager::getInstance();
+        /** @var ResourceConnection $resource */
+        $resource = $objectManager->get(ResourceConnection::class);
+        $connection = $resource->getConnection();
 
-        if ($id) {
-            $this->resource->load($model, $id);
-            if (!$model->getId()) {
-                $this->messageManager->addErrorMessage(__('This Production Request no longer exists.'));
-                return $this->_redirect('customdesigns/production/listing');
-            }
-        }
+        $mainTable = $resource->getTableName('rss_production_requests');
+        $bridgeTable = $resource->getTableName('rss_production_request_pattern');
 
-        unset($data['form_key'], $data['entity_id']);
+        $entityId = (int)$request->getParam('entity_id');
+        $selectedPatternIdsRaw = (string)$request->getParam('selected_pattern_ids', '');
 
-        $model->addData($data);
+        $selectedPatternIds = array_values(array_unique(array_filter(array_map('intval', explode(',', $selectedPatternIdsRaw)))));
 
         try {
-            $this->resource->save($model);
-            $this->messageManager->addSuccessMessage(__('Production Request saved.'));
-            return $this->_redirect('customdesigns/production/listing');
-            
-        } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
-            return $this->_redirectReferer();
+            $connection->beginTransaction();
+
+            $tableColumns = array_keys($connection->describeTable($mainTable));
+            $excludedKeys = [
+                'entity_id',
+                'selected_pattern_ids',
+                'form_key',
+                'key',
+                'back'
+            ];
+
+            $saveData = [];
+            foreach ($post as $field => $value) {
+                if (in_array($field, $excludedKeys, true)) {
+                    continue;
+                }
+
+                if (!in_array($field, $tableColumns, true)) {
+                    continue;
+                }
+
+                if (is_array($value)) {
+                    $saveData[$field] = implode(',', $value);
+                    continue;
+                }
+
+                $saveData[$field] = $value;
+            }
+
+            if (in_array('updated_at', $tableColumns, true)) {
+                $saveData['updated_at'] = (new \DateTime())->format('Y-m-d H:i:s');
+            }
+
+            if ($entityId > 0) {
+                $connection->update(
+                    $mainTable,
+                    $saveData,
+                    ['entity_id = ?' => $entityId]
+                );
+                $productionRequestId = $entityId;
+            } else {
+                if (in_array('created_at', $tableColumns, true) && empty($saveData['created_at'])) {
+                    $saveData['created_at'] = (new \DateTime())->format('Y-m-d H:i:s');
+                }
+
+                $connection->insert($mainTable, $saveData);
+                $productionRequestId = (int)$connection->lastInsertId($mainTable);
+            }
+
+            $connection->delete(
+                $bridgeTable,
+                ['production_request_id = ?' => (int)$productionRequestId]
+            );
+
+            if ($selectedPatternIds) {
+                $bridgeColumns = array_keys($connection->describeTable($bridgeTable));
+                $rows = [];
+                $sortOrder = 0;
+
+                foreach ($selectedPatternIds as $patternId) {
+                    if ($patternId <= 0) {
+                        continue;
+                    }
+
+                    $row = [];
+
+                    if (in_array('production_request_id', $bridgeColumns, true)) {
+                        $row['production_request_id'] = (int)$productionRequestId;
+                    }
+                    if (in_array('pattern_id', $bridgeColumns, true)) {
+                        $row['pattern_id'] = (int)$patternId;
+                    }
+                    if (in_array('is_primary', $bridgeColumns, true)) {
+                        $row['is_primary'] = ($sortOrder === 0 ? 1 : 0);
+                    }
+                    if (in_array('sort_order', $bridgeColumns, true)) {
+                        $row['sort_order'] = $sortOrder;
+                    }
+                    if (in_array('created_at', $bridgeColumns, true)) {
+                        $row['created_at'] = (new \DateTime())->format('Y-m-d H:i:s');
+                    }
+                    if (in_array('updated_at', $bridgeColumns, true)) {
+                        $row['updated_at'] = (new \DateTime())->format('Y-m-d H:i:s');
+                    }
+
+                    if (!empty($row)) {
+                        $rows[] = $row;
+                    }
+
+                    $sortOrder++;
+                }
+
+                if ($rows) {
+                    $connection->insertMultiple($bridgeTable, $rows);
+                }
+            }
+
+            $connection->commit();
+            $this->messageManager->addSuccessMessage(__('The production request has been saved.'));
+
+            if ($request->getParam('back')) {
+                return $resultRedirect->setPath('*/*/edit', ['entity_id' => $productionRequestId, '_current' => true]);
+            }
+
+            return $resultRedirect->setPath('*/*/listing');
+        } catch (\Throwable $e) {
+            if ($connection->getTransactionLevel() > 0) {
+                $connection->rollBack();
+            }
+
+            $this->messageManager->addErrorMessage(__('Unable to save the production request: %1', $e->getMessage()));
+
+            if ($entityId > 0) {
+                return $resultRedirect->setPath('*/*/edit', ['entity_id' => $entityId, '_current' => true]);
+            }
+
+            return $resultRedirect->setPath('*/*/listing');
         }
     }
 }

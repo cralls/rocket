@@ -65,4 +65,20 @@
 	    </arguments>
 	</type>
 	
+	<virtualType name="Rss\CustomDesigns\Model\ResourceModel\Bom\Collection"
+                 type="Rss\CustomDesigns\Ui\Component\DataProvider\SearchResult\Items">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">rss_custom_designs_bom</argument>
+            <argument name="resourceModel" xsi:type="string">Rss\CustomDesigns\Model\ResourceModel\Bom</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="rss_custom_designs_bom_listing_data_source" xsi:type="string">Rss\CustomDesigns\Model\ResourceModel\Bom\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+	
 </config>
