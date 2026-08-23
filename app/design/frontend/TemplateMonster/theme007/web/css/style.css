@@ -2658,8 +2658,8 @@ dl dd {
   box-shadow: none;
   -webkit-appearance: textfield; }
 .select2-container--default .select2-results > .select2-results__options {
-  max-height: 300px;
-  overflow-y: visible; }
+  max-height: 100%;
+  overflow-y: auto !important; }
 .select2-container--default .select2-results__option[role=group] {
   padding: 0; }
 .select2-container--default .select2-results__option[aria-disabled=true] {
@@ -5283,6 +5283,12 @@ h6,
 /*# sourceMappingURL=style.css.map */
 
 
+:root {
+  --rss-silver: #C7C8CA;
+  --rss-gold: #D8BB72;
+  --rss-bronze: #CE8E45;
+}
+
 /*************** Primary Color  ***************/
 
 /* background Primary */
@@ -5341,8 +5347,8 @@ h6,
 .modal-popup.quick-view #bundle-slide,
 .block.discount .apply,
 .checkout-onepage-success #registration .action.primary{
-    background-color: #8594a0;
-    border-color: #8594a0;
+    background-color: var(--rss-gold);
+    border-color: var(--rss-gold);
 }
 
 .category-image h1 {
@@ -5373,8 +5379,8 @@ h6,
 
 @media (min-width: 768px) {
 .layout_4 .rd-navbar-toggle{
-    background-color: #8594a0;
-    border-color: #8594a0;
+    background-color: var(--rss-gold);
+    border-color: var(--rss-gold);
 }
 }
 
@@ -5395,7 +5401,7 @@ table .table-bordered,
 .layout_4 .rd-navbar-search .form-group,
 .custom-item-7 .extra-position .link-custom,
 .layout_3 .block-newsletter .primary.subscribe {
-    border-color: #8594a0;
+    border-color: var(--rss-gold);
 }
 
 
@@ -5472,7 +5478,7 @@ em,
 .rd-navbar-static .layout_5 .rd-navbar-nav > li > a,
 .layout_5 .block-newsletter #newsletter,
 .layout_5 .block-newsletter .control::before {
-    color: #8594a0;
+    color: var(--rss-gold);
 }
 
 /* Hover Primary */
@@ -5523,12 +5529,12 @@ h6 a:hover,
 .header-info a:hover,
 .block.featured[role="tablist"] .page-title:hover,
 .block.featured[role="tablist"] .page-title.active{
-    color: #8594a0;
+    color: var(--rss-gold);
 }
 
 @media (min-width: 768px) {
 .layout_2 .footer .footer-col:not(.footer-info) a:hover  {
-    color: #8594a0;
+    color: var(--rss-gold);
 }
 }
 /* =============================================== */
@@ -5944,8 +5950,8 @@ header.page-header,
     .page-main .primary .action,
     .page-main .action.primary,
     .custom-item-27 .item-extra-2 .link-custom{
-    background-color:#000000;
-    border-color:#000000;
+    background-color:var(--rss-gold);
+    border-color:var(--rss-gold);
     }
     .page-main .actions-primary .action:hover,
     .page-main .primary .action:hover,
