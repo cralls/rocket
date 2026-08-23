@@ -1,6 +1,7 @@
 <?php
 /**
  * @var \Averun\SizeChart\Block\Frontend\Product\View $block
+ * VNS revision 2026-05-23: only render jersey number inputs when product attribute show_numbers is enabled.
  */
 ?>
 
@@ -14,6 +15,38 @@ $undefinedLabel = __('You size is undefined');
 $yourSizeLabel = __('Your size is');
 $yourSizeOutOfRangeLabel = __('Your size is out of range!');
 $sizeChartButtonLabel = __('Smart Size Chart');
+
+$product = null;
+$showJerseyNumbers = false;
+
+/*
+ * VNS revision 2026-05-24:
+ * Use the current PDP product as the source of truth. On a configurable product
+ * page this is the parent configurable product, not the selected/simple child.
+ * Then reload that product so a newly-added EAV attribute like show_numbers is
+ * definitely present on the model used by this template.
+ */
+try {
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $registry = $objectManager->get(\Magento\Framework\Registry::class);
+    $currentProduct = $registry->registry('current_product');
+
+    if ($currentProduct && $currentProduct->getId()) {
+        $product = $currentProduct;
+    } elseif (method_exists($block, 'getProduct')) {
+        $product = $block->getProduct();
+    }
+
+    if ($product && $product->getId()) {
+        $storeManager = $objectManager->get(\Magento\Store\Model\StoreManagerInterface::class);
+        $productRepository = $objectManager->get(\Magento\Catalog\Api\ProductRepositoryInterface::class);
+        $product = $productRepository->getById((int)$product->getId(), false, (int)$storeManager->getStore()->getId(), true);
+        $showNumbersValue = $product->getData('show_numbers');
+        $showJerseyNumbers = ((string)$showNumbersValue === '1' || $showNumbersValue === 1 || $showNumbersValue === true);
+    }
+} catch (\Exception $e) {
+    $showJerseyNumbers = false;
+}
 
 ?>
 <?php if (!empty($chart)) { ?>
@@ -135,8 +168,17 @@ $sizeChartButtonLabel = __('Smart Size Chart');
                                     $mainClass = ' class="ave-main"';
                                     $mainSelected = 1;
                                 }
-                                echo '<td id="' . $sizeId . '"' . $mainClass . ' data-label="' . $sizeName . '">';
-                                echo $sizeName;
+                                $escapedSizeName = $block->escapeHtml($sizeName);
+                                $escapedSizeAttr = $block->escapeHtmlAttr($sizeName);
+                                echo '<td id="' . $sizeId . '"' . $mainClass . ' data-label="' . $escapedSizeAttr . '">';
+                                if ($mainClass && $showJerseyNumbers) {
+                                    echo '<div class="ave-sizechart-size-number-row">';
+                                    echo '<span class="ave-sizechart-size-label">' . $escapedSizeName . '</span>';
+                                    echo '<input type="text" class="ave-jersey-numbers-input" data-size-label="' . $escapedSizeAttr . '" placeholder="Numbers, e.g. 7,12,24" autocomplete="off" />';
+                                    echo '</div>';
+                                } else {
+                                    echo $escapedSizeName;
+                                }
                                 echo '</td>';
                             } else if (!empty($sizes['sizes'][$i]) && array_key_exists('name', $sizes['sizes'][$i])
                                                                 && ($sizes['sizes'][$i]['name'] === '0')) {

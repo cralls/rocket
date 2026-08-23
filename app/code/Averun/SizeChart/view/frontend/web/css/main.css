@@ -255,3 +255,32 @@ div#ave-sizechart-current-size.hidden {
 .full-width {
     width: 100%;
 }
+
+.ave-sizechart-size-number-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ave-sizechart-size-label {
+    display: inline-block;
+    min-width: 45px;
+}
+
+.ave-jersey-numbers-input {
+    width: 170px;
+    max-width: 100%;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .ave-sizechart-size-number-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .ave-jersey-numbers-input {
+        width: 140px;
+    }
+}

@@ -12,6 +12,9 @@ define([
             startButtonLabelSelector: '.ave-sizechart-show-link .ave-sizechart-button-label',
             currentSizeSelector: '#ave-sizechart-current-size',
             tableCellSelector: 'table.ave-sizechart-table td',
+            jerseyNumbersInputSelector: '.ave-jersey-numbers-input',
+            productAddToCartFormSelector: '#product_addtocart_form',
+            jerseyNumbersHiddenClass: 'ave-jersey-numbers-hidden',
             inputSelectDimensionName: 'ave_sizechart_unit_of_length_select',
             mainMatchClass: 'main-match-size',
             subMatchClass: 'sub-match-size',
@@ -82,6 +85,42 @@ define([
                 $(this.inputDimensionSelector).on('change', ave_sizechart.changeUserDimension);
                 $(this.unitOfLengthBtnSelector).on('click', ave_sizechart.changeMeasurement);
                 $(this.tableCellSelector).on('click', ave_sizechart.chooseSize);
+                $(document).on('click', ave_sizechart.jerseyNumbersInputSelector, function (event) {
+                    event.stopPropagation();
+                });
+                $(document).on('keyup change blur', ave_sizechart.jerseyNumbersInputSelector, function () {
+                    ave_sizechart.syncJerseyNumbersToProductForm();
+                });
+                $(document).on('submit', ave_sizechart.productAddToCartFormSelector, function () {
+                    ave_sizechart.syncJerseyNumbersToProductForm();
+                });
+                ave_sizechart.syncJerseyNumbersToProductForm();
+            },
+            syncJerseyNumbersToProductForm: function () {
+                var form = $(ave_sizechart.productAddToCartFormSelector);
+
+                if (!form.length) {
+                    return;
+                }
+
+                form.find('input.' + ave_sizechart.jerseyNumbersHiddenClass).remove();
+
+                $(ave_sizechart.jerseyNumbersInputSelector).each(function () {
+                    var input = $(this),
+                        value = $.trim(input.val()),
+                        sizeLabel = $.trim(input.data('size-label'));
+
+                    if (!value || !sizeLabel) {
+                        return;
+                    }
+
+                    $('<input />', {
+                        type: 'hidden',
+                        class: ave_sizechart.jerseyNumbersHiddenClass,
+                        name: 'ave_jersey_numbers[' + sizeLabel + ']',
+                        value: value
+                    }).appendTo(form);
+                });
             },
             chooseSize: function () {
                 $('.' + ave_sizechart.matchClass).each(function (index, element) {
@@ -402,8 +441,18 @@ define([
                             var el = document.getElementById(sizeId);
                             el.dataset.label = sizeLabel;
                             el.dataset.value = sizeValue;
-                            el.innerText = sizeLabel;
-                            el.textContent = sizeLabel;
+                            var sizeLabelElement = $(el).find('.ave-sizechart-size-label');
+                            var jerseyNumbersInput = $(el).find(ave_sizechart.jerseyNumbersInputSelector);
+                            if (sizeLabelElement.length) {
+                                sizeLabelElement.text(sizeLabel);
+                                if (jerseyNumbersInput.length) {
+                                    jerseyNumbersInput.attr('data-size-label', sizeLabel);
+                                    jerseyNumbersInput.data('size-label', sizeLabel);
+                                }
+                            } else {
+                                el.innerText = sizeLabel;
+                                el.textContent = sizeLabel;
+                            }
                         }
                     }
                 }
@@ -514,15 +563,14 @@ define([
                         dimensionUserValue = this.userDimensions[dimensionId];
                         dimensionCurrentArray = this.sizes[this.getDimensionIdentifier(dimensionId)];
                         matchSizes = this.getBestMatchIds(dimensionCurrentArray, dimensionUserValue, dimensionId);
-                        if (false === matchSizes) {                          //1 - didn't find any values
-                        } else if (matchSizes.hasOwnProperty('id') && matchSizes.hasOwnProperty('value')) {        //2 - strict match
+                        if (false === matchSizes) {
+                        } else if (matchSizes.hasOwnProperty('id') && matchSizes.hasOwnProperty('value')) {
                             $('#' + matchSizes['id']).addClass(this.matchClass).parent().addClass(this.matchClass);
                             mainSize = getMainSize(matchSizes['id']);
                             if (mainSize) {
                                 recommendationSize.push(mainSize);
                             }
                         } else if (matchSizes.hasOwnProperty('length') && (matchSizes.length == 1 || matchSizes.length == 2)) {
-                                           //3 - find one value
                             for (sizeId in matchSizes) {
                                 if (matchSizes.hasOwnProperty(sizeId) && sizeId !== 'length') {
                                     $('#' + sizeId).addClass(this.subMatchClass).parent().addClass(this.subMatchClass);
@@ -610,15 +658,13 @@ define([
                 if (defaultRight != right) {
                     resultSizes[rightId] = right;
                 }
-                //if entered value is overhead more than average step
                 for (sizeId in resultSizes) {
                     if (!resultSizes.hasOwnProperty(sizeId)) {
                         continue;
                     }
-                    if ((resultSizes[sizeId] < userSize && (resultSizes[sizeId] + dimensionTax) < userSize)    //right
-                        || (resultSizes[sizeId] > userSize && (resultSizes[sizeId] - dimensionTax) > userSize)    //left
+                    if ((resultSizes[sizeId] < userSize && (resultSizes[sizeId] + dimensionTax) < userSize)
+                        || (resultSizes[sizeId] > userSize && (resultSizes[sizeId] - dimensionTax) > userSize)
                     ) {
-                        //do nothing
                     } else {
                         realSizes[sizeId] = resultSizes[sizeId];
                         if (!realSizes.hasOwnProperty('length')) {
@@ -635,7 +681,6 @@ define([
             changeMember: function () {
                 var memberId = $(this).val(),
                     measurements = ave_sizechart.membersMeasurements[memberId];
-                /* step 1: change values in dimension inputs */
                 $(ave_sizechart.inputDimensionSelector).each(function (index, element) {
                     var dimensionId = element.id,
                         value = 0;
@@ -656,13 +701,11 @@ define([
                         element.fireEvent("onchange");
                     }
                 });
-                /* step 2: set default member in db */
                 $.ajax({
                     url: ave_sizechart.setActiveUrl,
                     method: 'post',
                     data: {'member_id': memberId}
                 }).done(function () {
-                    /*data = data.responseText.evalJSON();*/
                 });
             },
             saveMemberDimension: function (id, value) {
@@ -683,7 +726,6 @@ define([
                         method: 'post',
                         data: {'dimension_id': id, 'value': value, 'member_id': memberSelectElement.val()}
                     }).done(function () {
-                        /*data = data.responseText.evalJSON();*/
                     });
                 }
             },
